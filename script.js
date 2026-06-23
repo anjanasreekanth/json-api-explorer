@@ -1,10 +1,19 @@
+//fetch and display post
+
+//1. Getting elements using id(post: button- fetchbutton,error and postlist))
+const fetchButton = document.getElementById("fetchButton");
+const errorMessage = document.getElementById("error");
+const postList = document.getElementById("postList");
+//2.getting elements using id(postform,titleinput,bodyinput,formerror,form success)
+const postForm = document.getElementById("postForm");
+const titleInput = document.getElementById("titleInput");
+const bodyInput = document.getElementById("bodyInput");
+const formError = document.getElementById("formError");
+const formSuccess = document.getElementById("formSuccess");
 
 
+//writing function for Posts(fetching data and displaying the data )
 
-//List Posts section
-errorDiv = document.getElementById("errorDiv");
-postList = document.getElementById("postList");
-fetchButton = document.getElementById("fetchButton");
 // Fetch posts from API when button is clicked
 function fetchPosts() {
     postList.innerHTML = "";
@@ -25,12 +34,14 @@ function fetchPosts() {
             errorDiv.textContent = "Error loading posts: " + err.message;
         });
 }
+
+
 // Listen for button click to fetch posts
 fetchButton.addEventListener("click", fetchPosts);
 // Helper function to render posts in the DOM
 function renderPosts(posts) {
     postList.innerHTML = ""; // Clear previous posts
-    posts.slice(0,5).forEach((post) => {
+    posts.slice(0,5).forEach((post) => { //only displaying 5 posts
         // Create a div for each post
         const postDiv = document.createElement("div");
         postDiv.className = "post";
@@ -40,53 +51,36 @@ function renderPosts(posts) {
     });
 }
 
-//Create and Send a new Post
-postForm = document.getElementById("postForm");
-titleInput = document.getElementById("titleInput");
-bodyInput = document.getElementById("bodyInput");
-formError = document.getElementById("formError");
-formSuccess = document.getElementById("formSuccess");
-postButton = document.getElementById("postButton");
+//Function for form submit
 
-//when submit button is clicked
-postButton.addEventListener("click", event => {
-    
-    const title = titleInput.value;
-    const body = bodyInput.value;
-    formError.textContent = '';
-    formSuccess.textContent = '';
-    
-    console.log(title);
-    console.log(body);
+postForm.addEventListener("submit", (event) => { // make sure to add event parameter so the browser doesn't actually refresh the page 
+  event.preventDefault();
+  // user input
+  const title = titleInput.value;
+  const body = bodyInput.value;
 
-    
-    event.preventDefault();
-    
-    fetch('https://jsonplaceholder.typicode.com/posts', {
-        method: 'POST', 
-        headers: { 
-            'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({
-            title: title,
-            body: body,
-        }),
-    })
-    .then(response => {    
-        if (!response.ok) {
-            throw new Error(`HTTP Error! Status: ${response.status} - ${response.statusText || 'Unknown Error'}`);
-        }
-              
-        return response.json(); 
-    })
-    .then(createdPost => {
-        console.log("createdPost", createdPost);
-        formSuccess.textContent = `Post created successfully! (ID: ${createdPost.id})\n${JSON.stringify(createdPost, null, 2)}`;
-        titleInput.value = '';
-        bodyInput.value = '';
-    })
-    .catch(error => {    
-        formError.textContent = `Error creating post: ${error.message}`;
-    });
-});
 
+  fetch("https://jsonplaceholder.typicode.com/posts", {
+    method: "POST", // replaces default
+    headers: { "Content-Type": "applicaiton/json" }, // specifies the format of request body
+    body: JSON.stringify( // turns user data into a string
+      {
+        title,
+        body
+      })
+  }).then(response => {
+    if (!response.ok) { // valiadtion if connectivity issue
+      throw new Error("Post submission unsuccessful")
+    }
+    alert("Form submitted!");
+    return response.json()
+  }).then(data => {
+    formSuccess.textContent = "Post submitted!"
+
+    // reset form text content
+    titleInput.value = "";
+    bodyInput.value = "";
+  }).catch(err => {
+    formError.innerHTML = "Error submitting posts: " + err.message;
+  });
+})
